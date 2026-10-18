@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>اردو بک ایڈیٹر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@counter-style urdu{system:numeric;symbols:"۰" "۱" "۲" "۳" "۴" "۵" "۶" "۷" "۸" "۹"}
+:root{--bg:#f4f7fc;--surface:#fff;--ink:#16327a;--head:#0a2260;--muted:#5a6d9c;--accent:#2557d6;--tint:#e8efff;--line:#dce6f7;--bf:'Noto Nastaliq Urdu','Jameel Noori Nastaleeq',serif;--fs:1.3rem}
+:root[data-theme=dark]{--bg:#060b1a;--surface:#0d1632;--ink:#d9e4ff;--head:#f4f7ff;--muted:#93a6d3;--accent:#7ea6ff;--tint:#15244d;--line:#1b2b57}
+*{box-sizing:border-box;margin:0}
+body{font:400 1rem/1.6 system-ui,'Noto Naskh Arabic',sans-serif;background:var(--bg);color:var(--ink);height:100dvh;display:flex;flex-direction:column}
+button,input,select{font:inherit;color:inherit}
+button,.fl{cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.3rem .7rem;min-height:2.25rem;transition:background-color .4s}
+button:hover,.fl:hover{background:var(--tint)}
+button.pri{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.top{display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;border-bottom:1px solid var(--line);background:var(--surface)}
+.top b{flex:1;font-size:1.05rem;color:var(--head)}
+#status{font-size:.82rem;color:var(--muted)}
+.wrap{flex:1;display:flex;min-height:0}
+aside{width:290px;flex:none;border-inline-end:1px solid var(--line);background:var(--surface);padding:1rem;overflow:auto;display:flex;flex-direction:column;gap:.7rem}
+aside h2{font-size:.95rem;color:var(--head);margin-top:.5rem}
+aside input,aside select{width:100%;padding:.4rem .6rem;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.lb{display:grid;gap:.2rem;font-size:.85rem;color:var(--muted)}
+.row{display:flex;gap:.4rem;flex-wrap:wrap}
+.fl{display:inline-flex;align-items:center}
+#chList{list-style:none;padding:0;display:grid;gap:.4rem}
+#chList li{display:flex;gap:.25rem;align-items:center;border:1px solid var(--line);border-radius:12px;padding:.2rem;background:var(--bg)}
+#chList li.on{border-color:var(--accent);background:var(--tint)}
+#chList .nm{flex:1;min-width:0;text-align:start;border:0;background:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--bf);line-height:2}
+#chList .ctl{display:flex;gap:.2rem}
+#chList .ctl button{padding:.1rem .45rem;min-height:1.9rem}
+main{flex:1;display:flex;flex-direction:column;min-width:0}
+.bar{display:flex;gap:.35rem;padding:.5rem .8rem;overflow-x:auto;border-bottom:1px solid var(--line);background:var(--surface);white-space:nowrap}
+.sheet{flex:1;overflow:auto;padding:1.2rem}
+.paper{max-width:46rem;margin:0 auto}
+#chTitle{width:100%;font:600 1.6rem var(--bf);line-height:2;background:none;border:0;border-bottom:1px solid var(--line);color:var(--head);padding:.3rem 0;margin-bottom:1rem;text-align:center}
+#ed{min-height:60vh;outline:0;font:400 var(--fs)/2.5 var(--bf);text-align:justify}
+#ed:empty:before{content:attr(data-ph);color:var(--muted)}
+#ed p{margin-bottom:.8em}
+#ed h2{font-size:1.25em;font-weight:600;color:var(--head);margin:1.2em 0 .3em}
+#ed h3{font-size:1.1em;font-weight:600;color:var(--head);margin:1em 0 .3em}
+#ed blockquote{margin:1em 1.5em;padding-inline-start:1rem;border-inline-start:3px solid var(--accent);color:var(--muted);text-align:center}
+#count{color:var(--muted);font-size:.85rem;margin-top:1.5rem}
+#menu{display:none}
+@media(max-width:820px){#menu{display:inline-block}aside{position:fixed;top:0;bottom:0;right:0;z-index:20;width:min(86vw,320px);transform:translateX(100%);transition:transform .35s ease;box-shadow:-20px 0 50px rgba(0,0,0,.2)}aside.open{transform:none}}
+#printRoot{display:none}
+@media print{
+body{display:block;height:auto;background:#fff;color:#000}
+body>*:not(#printRoot){display:none!important}
+#printRoot{display:block;font-family:var(--bf);line-height:2.4;color:#000}
+.tp{min-height:160mm;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.tp h1{font-size:2.4em;font-weight:700;line-height:2;margin-bottom:1em}
+.tp p{font-size:1.3em}
+.pch{break-before:page}
+.pch>h1{font-size:1.8em;font-weight:700;text-align:center;line-height:2;margin:14mm 0 10mm}
+.pch p{margin:0 0 .5em;text-align:justify;orphans:2;widows:2}
+.pch h2{font-size:1.25em;font-weight:600;margin:1.2em 0 .3em;break-after:avoid}
+.pch h3{font-size:1.1em;font-weight:600;margin:1em 0 .3em;break-after:avoid}
+.pch blockquote{margin:.8em 2em;text-align:center;break-inside:avoid}
+}
+</style>
+<style id="pg"></style>
+</head>
+<body>
+<header class="top">
+<button id="menu" aria-label="ابواب">☰</button>
+<b>اردو بک ایڈیٹر</b>
+<span id="status"></span>
+<button id="theme">تھیم</button>
+<button id="pdf" class="pri">PDF بنائیں</button>
+</header>
+<div class="wrap">
+<aside>
+<h2>کتاب کی معلومات</h2>
+<input id="bt" placeholder="کتاب کا عنوان">
+<input id="au" placeholder="مصنف کا نام">
+<h2>ابواب</h2>
+<ul id="chList"></ul>
+<button id="add" class="pri">+ نیا باب</button>
+<h2>فونٹ اور پرنٹ</h2>
+<label class="lb">فونٹ<select id="font"><option value="nas">نستعلیق</option><option value="nsk">نسخ</option></select></label>
+<label class="lb">کتاب کا سائز<select id="trim"><option value="148mm 210mm">A5 (148×210 ملی میٹر)</option><option value="152mm 229mm">6×9 انچ</option><option value="139.7mm 215.9mm">5.5×8.5 انچ</option><option value="210mm 297mm">A4</option></select></label>
+<label class="lb">پرنٹ میں فونٹ سائز<select id="pfs"><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option></select></label>
+<h2>بیک اپ</h2>
+<div class="row"><button id="bk">بیک اپ (JSON)</button><label class="fl">بحال کریں<input id="rs" type="file" accept=".json,application/json" hidden></label><button id="tx">ٹیکسٹ فائل</button></div>
+</aside>
+<main>
+<div class="bar" id="bar">
+<button data-c="undo">واپس</button><button data-c="redo">دوبارہ</button>
+<button data-c="bold"><b>B</b></button><button data-c="italic"><i>I</i></button><button data-c="underline"><u>U</u></button>
+<button data-c="blk" data-v="h2">سرخی</button><button data-c="blk" data-v="h3">ذیلی سرخی</button><button data-c="blk" data-v="p">عام</button><button data-c="blk" data-v="blockquote">اقتباس</button>
+<button data-c="justifyRight">دائیں</button><button data-c="justifyCenter">درمیان</button><button data-c="justifyFull">برابر</button>
+<button data-c="sz" data-v="-0.1">A−</button><button data-c="sz" data-v="0.1">A+</button>
+<button data-c="strip">اعراب ہٹائیں</button>
+</div>
+<div class="sheet"><div class="paper">
+<input id="chTitle" placeholder="باب کا عنوان">
+<div id="ed" contenteditable="true" spellcheck="false" data-ph="یہاں لکھنا شروع کریں…"></div>
+<p id="count"></p>
+</div></div>
+</main>
+</div>
+<div id="printRoot"></div>
+<script>
+(function(){
+var $=function(s){return document.querySelector(s)};
+var K='ur-book-v1',D={title:'',author:'',font:'nas',fs:1.3,trim:'148mm 210mm',pfs:12,cur:0};
+var FONTS={nas:"'Noto Nastaliq Urdu','Jameel Noori Nastaleeq',serif",nsk:"'Noto Naskh Arabic','Jameel Noori Nastaleeq',serif"};
+var esc=function(s){return String(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var S;
+try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
+if(!S||!S.chapters||!S.chapters.length)S=Object.assign({chapters:[{t:'پہلا باب',h:''}]},D);
+var ed=$('#ed'),ct=$('#chTitle'),tm;
+var root=document.documentElement;
+var th;try{th=localStorage.getItem('ur-theme')}catch(e){}
+root.dataset.theme=th||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+$('#theme').onclick=function(){var t=root.dataset.theme==='dark'?'light':'dark';root.dataset.theme=t;try{localStorage.setItem('ur-theme',t)}catch(e){}};
+
+function save(){try{localStorage.setItem(K,JSON.stringify(S));$('#status').textContent='محفوظ ہو گیا'}catch(e){$('#status').textContent='محفوظ نہیں ہو سکا، بیک اپ لیں'}}
+function pull(){var c=S.chapters[S.cur];c.t=ct.value;c.h=ed.innerHTML}
+function count(){var n=(ed.innerText.trim().match(/\S+/g)||[]).length;$('#count').textContent='الفاظ: '+n}
+function list(){$('#chList').innerHTML=S.chapters.map(function(c,i){return '<li class="'+(i===S.cur?'on':'')+'" data-i="'+i+'"><button class="nm" data-a="go">'+(esc(c.t)||'بدون عنوان')+'</button><span class="ctl"><button data-a="up" aria-label="اوپر">▲</button><button data-a="dn" aria-label="نیچے">▼</button><button data-a="del" aria-label="حذف">✕</button></span></li>'}).join('')}
+function touch(){$('#status').textContent='محفوظ ہو رہا ہے…';clearTimeout(tm);tm=setTimeout(function(){pull();save();count();list()},700)}
+function style(){root.style.setProperty('--bf',FONTS[S.font]||FONTS.nas);root.style.setProperty('--fs',S.fs+'rem');$('#font').value=S.font;$('#trim').value=S.trim;$('#pfs').value=S.pfs;$('#bt').value=S.title;$('#au').value=S.author}
+function show(){var c=S.chapters[S.cur];ct.value=c.t;ed.innerHTML=c.h;list();count()}
+function mv(i,j){var a=S.chapters,x=a[i];a[i]=a[j];a[j]=x;if(S.cur===i)S.cur=j;else if(S.cur===j)S.cur=i}
+
+$('#chList').onclick=function(e){
+var b=e.target.closest('button');if(!b)return;
+var i=+b.closest('li').dataset.i,a=b.dataset.a;pull();
+if(a==='go'){S.cur=i;$('aside').classList.remove('open')}
+else if(a==='up'){if(i>0)mv(i,i-1)}
+else if(a==='dn'){if(i<S.chapters.length-1)mv(i,i+1)}
+else if(a==='del'){
+if(S.chapters.length<2){alert('کم از کم ایک باب رہنا ضروری ہے');return}
+if(!confirm('یہ باب حذف کر دیں؟'))return;
+S.chapters.splice(i,1);if(i<S.cur)S.cur--;if(S.cur>=S.chapters.length)S.cur=S.chapters.length-1}
+save();show()};
+$('#add').onclick=function(){pull();S.chapters.push({t:'نیا باب',h:''});S.cur=S.chapters.length-1;save();show();$('aside').classList.remove('open');ed.focus()};
+$('#menu').onclick=function(){$('aside').classList.toggle('open')};
+
+$('#bar').onpointerdown=function(e){if(e.target.closest('button'))e.preventDefault()};
+$('#bar').onclick=function(e){
+var b=e.target.closest('button');if(!b)return;var c=b.dataset.c;
+if(c==='sz'){S.fs=Math.min(2.2,Math.max(.9,Math.round((S.fs+ +b.dataset.v)*10)/10));style()}
+else if(c==='strip'){strip()}
+else{ed.focus();if(c==='blk')document.execCommand('formatBlock',false,'<'+b.dataset.v+'>');else document.execCommand(c)}
+touch()};
+function strip(){
+if(!confirm('اس باب سے سارے اعراب ہٹا دیں؟'))return;
+var w=document.createTreeWalker(ed,NodeFilter.SHOW_TEXT),n;
+while(n=w.nextNode())n.nodeValue=n.nodeValue.replace(/[\u064B-\u0653\u0656-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED]/g,'')}
+
+ed.addEventListener('paste',function(e){
+e.preventDefault();
+var t=(e.clipboardData||window.clipboardData).getData('text/plain');
+var h=t.split(/\r?\n+/).filter(function(x){return x.trim()}).map(function(x){return '<p>'+esc(x.trim())+'</p>'}).join('');
+document.execCommand('insertHTML',false,h)});
+ed.oninput=ct.oninput=touch;
+$('#bt').oninput=function(e){S.title=e.target.value;touch()};
+$('#au').oninput=function(e){S.author=e.target.value;touch()};
+$('#font').onchange=function(e){S.font=e.target.value;style();save()};
+$('#trim').onchange=function(e){S.trim=e.target.value;save()};
+$('#pfs').onchange=function(e){S.pfs=+e.target.value;save()};
+
+function dl(name,type,data){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:type}));a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},2000)}
+$('#bk').onclick=function(){pull();save();dl('urdu-book-backup.json','application/json',JSON.stringify(S))};
+$('#rs').onchange=function(e){
+var f=e.target.files[0];if(!f)return;var r=new FileReader();
+r.onload=function(){try{
+var d=JSON.parse(r.result);if(!d.chapters||!d.chapters.length)throw 0;
+if(!confirm('موجودہ کتاب کی جگہ بیک اپ والی کتاب آ جائے گی۔ جاری رکھیں؟'))return;
+S=Object.assign({},D,d);S.cur=0;save();style();show()}catch(x){alert('یہ فائل درست بیک اپ نہیں ہے')}};
+r.readAsText(f);e.target.value=''};
+$('#tx').onclick=function(){
+pull();
+var parts=[S.title,S.author].concat(S.chapters.map(function(c){var d=document.createElement('div');d.innerHTML=c.h.replace(/<\/(p|div|h2|h3|blockquote)>/gi,'$&\n');return c.t+'\n\n'+d.textContent.trim()}));
+dl('urdu-book.txt','text/plain',parts.join('\n\n'))};
+
+$('#pdf').onclick=function(){
+pull();save();
+var r=$('#printRoot');
+r.style.fontSize=S.pfs+'pt';
+r.innerHTML='<section class="tp"><h1>'+(esc(S.title)||'بے عنوان کتاب')+'</h1><p>'+esc(S.author)+'</p></section>'+S.chapters.map(function(c){return '<section class="pch"><h1>'+esc(c.t)+'</h1>'+c.h+'</section>'}).join('');
+$('#pg').textContent='@page{size:'+S.trim+';margin:18mm 16mm 22mm;@bottom-center{content:counter(page,urdu);font:10pt '+FONTS[S.font]+'}}@page:first{@bottom-center{content:none}}';
+setTimeout(function(){window.print()},300)};
+
+document.execCommand('defaultParagraphSeparator',false,'p');
+window.addEventListener('beforeunload',function(){pull();save()});
+style();show();
+})();
+</script>
+</body>
+</html>
